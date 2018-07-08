@@ -4,6 +4,9 @@
 // OS dependent includes
 ///////////////////////////////////////////////////////////////////////////////
    
+const char* const RX_ADDRESS = "hb";
+const char* const SUB_ADDRESS = "controller";
+
 #if OS_IS_LINUX == 1 || OS_IS_MACOSX == 1 || OS_IS_CYGWIN == 1
 #	include <unistd.h>			//	usleep
 #	include <fcntl.h>
@@ -92,7 +95,7 @@ TheOscHelloMethod::TheOscHelloMethod(
 :WOscServerMethod(
 	parent,
 	receiverContext,
-	"hello",
+	SUB_ADDRESS,
 	"A hello word method.")
 {}
 
@@ -199,7 +202,7 @@ WOscServer::WOscServer()
 
 	// containers
 	WOscContainer* rootContainer = new WOscContainer();
-	WOscContainer* etcContainer = new WOscContainer(rootContainer, "etc");
+	WOscContainer* etcContainer = new WOscContainer(rootContainer, RX_ADDRESS);
 	
 	// "root" methods
 	new TheOscHelloMethod( rootContainer, this );
