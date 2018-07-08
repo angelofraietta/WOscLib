@@ -10,7 +10,7 @@
 
 #include <fcntl.h>
 #include <sys/socket.h>
-
+#include <unistd.h>
 
 /** Implements a full featured OSC client with TCP transport.
  * @param threading
@@ -39,7 +39,7 @@ WOscTcpClient::Error
 WOscTcpClient::Connect(const TheNetReturnAddress& serverAddress)
 {
 	// Check if reception thread is already running
-	if ( GetRxThreadID() > 0 )
+	if ( GetRxThreadID() != NULL )
 		return WOS_ERR_ALREADY_RUNNING;
 	
 	// Check if someone established a connection already

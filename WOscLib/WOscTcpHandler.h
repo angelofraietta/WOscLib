@@ -102,7 +102,7 @@ public:
 	Error Stop();
 	/** Get Socket file descriptor for use in select or similar. */
 	int GetSocketID() const { return m_socketID; }
-	int GetRxThreadID() const { return m_receptionThreadID; }
+	pthread_t GetRxThreadID() const { return m_receptionThreadID; }
 	bool GetThreading() const { return m_threading; }
 	const TheNetReturnAddress& GetPeer() const { return m_peer; }
 protected:

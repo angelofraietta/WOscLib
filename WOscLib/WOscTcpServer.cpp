@@ -11,6 +11,7 @@
 
 #include <fcntl.h>
 #include <sys/socket.h>
+#include <unistd.h>
 
 #define WOSC_TCP_SERVER_NUM_PENDING_CONNECTIONS	5
 

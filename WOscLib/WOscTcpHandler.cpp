@@ -166,7 +166,7 @@ WOscTcpHandler::Start(int socketID, const TheNetReturnAddress& peer)
 	if ( m_socketID >= 0 )
 		return WOS_ERR_ALREADY_CONNECTED;
 	// Check if reception thread is already running
-	if ( m_receptionThreadID > 0 )
+	if ( m_receptionThreadID != NULL )
 		return WOS_ERR_ALREADY_RUNNING;
 
 	m_socketID = socketID;

@@ -287,7 +287,7 @@ WOscTimeTag::operator= (const WOscTimeTag& rhs)
 WOscTimeTag
 WOscTimeTag::operator+= (const WOscTimeTag& rhs)
 {
-	m_timeTag =+ rhs.m_timeTag;
+	m_timeTag += rhs.m_timeTag;
 	return *this;
 }
 
