@@ -104,23 +104,38 @@ void TheDynamicControlUpdateMethod::Method(
 	int nInt = message->GetNumInts();
 	//int nFlt = message->GetNumFloats();
   
-        const char* message_name = message->GetString(1).GetBuffer();
-        if (strcmp(message_name, "Reset") == 0){
-            cout << "Reset Message" <<endl;
-            num_int_messages = 0;
-            next_expected_int = 0;
-            num_errors = 0;        
+        if (nStr > 0){
+            const char* message_name = message->GetString(1).GetBuffer();
+            if (strcmp(message_name, "Reset") == 0){
+                cout << "Reset Message" <<endl;
+                num_int_messages = 0;
+                next_expected_int = 0;
+                num_errors = 0;        
+            }
+            else if(strcmp(message_name, "Global Integer") == 0){
+                cout << "Integer Message" << endl;
+
+                if (nInt > 0){
+                    int message_val = message->GetInt(1); // 1 is where our message val is
+                    num_int_messages++;
+
+                    if (message_val < next_expected_int){
+                        num_errors++;
+                    }
+
+                    next_expected_int = message_val + 1;
+
+                    cout<<message_val << " " << num_int_messages<< " " << num_errors <<endl;
+
+                }
+                else{
+                    cout<< "Not enough Int messages for this to be valid" << endl;
+                }
+
+            }
         }
-        else if(strcmp(message_name, "Global Integer") == 0){
-            cout << "Integer Message" << endl;
-            
-            int message_val = message->GetInt(1); // 1 is where our message val is
-            num_int_messages++;
-            cout<<message_val << " " << num_int_messages<<endl;
-            
-            //if ()
-            //next_expected_int = 0;
-            //num_errors = 0;        
+        else{
+            cout<< "Not enough String messages for this to be valid" << endl;
         }
 /*
 	for (int i = 0; i < nStr; i++ )
