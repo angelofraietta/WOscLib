@@ -35,6 +35,9 @@ const char* const SUB_ADDRESS = "global";
 
 #include "WOscServer.h"
 
+using std::cout;
+using std::endl;
+
 ///////////////////////////////////////////////////////////////////////////////
 // defines
 ///////////////////////////////////////////////////////////////////////////////
@@ -79,18 +82,47 @@ TheDynamicControlUpdateMethod::TheDynamicControlUpdateMethod(
 	"Dynamic COntrol Update Method")
 {}
 
-/** The hello method. Prints "Hello World!" and the contents of the message
- * on the console.
+/**
+ * This is where we will decode our Dynamic Control Message
+ * String [1] will be our message
+ * Int [0] Our message type
+ * int [1] will be our integer value
+ * 
  */
 void TheDynamicControlUpdateMethod::Method(
 	const WOscMessage *message,
 	const WOscTimeTag& when,
 	const TheNetReturnAddress* networkReturnAddress)
 {
-	std::cout << "Dynamic Control Methid"<<std::endl ;
+    
+        static int num_int_messages = 0;
+        static int next_expected_int = 0;
+        static int num_errors = 0;
+        
+	std::cout << "Dynamic Control Method"<<std::endl ;
 	int nStr = message->GetNumStrings();
 	int nInt = message->GetNumInts();
-	int nFlt = message->GetNumFloats();
+	//int nFlt = message->GetNumFloats();
+  
+        const char* message_name = message->GetString(1).GetBuffer();
+        if (strcmp(message_name, "Reset") == 0){
+            cout << "Reset Message" <<endl;
+            num_int_messages = 0;
+            next_expected_int = 0;
+            num_errors = 0;        
+        }
+        else if(strcmp(message_name, "Global Integer") == 0){
+            cout << "Integer Message" << endl;
+            
+            int message_val = message->GetInt(1); // 1 is where our message val is
+            num_int_messages++;
+            cout<<message_val << " " << num_int_messages<<endl;
+            
+            //if ()
+            //next_expected_int = 0;
+            //num_errors = 0;        
+        }
+/*
 	for (int i = 0; i < nStr; i++ )
 		std::cout << "  str["<<i<<"]\t" << 
 			message->GetString(i).GetBuffer() <<std::endl ;
@@ -100,6 +132,7 @@ void TheDynamicControlUpdateMethod::Method(
 	for (int i = 0; i < nFlt; i++ )
 		std::cout << "  flt["<<i<<"]\t" << 
 			message->GetFloat(i) <<std::endl ;
+ * */
 }
 
 
