@@ -4,8 +4,8 @@
 // OS dependent includes
 ///////////////////////////////////////////////////////////////////////////////
    
-const char* const RX_ADDRESS = "hb";
-const char* const SUB_ADDRESS = "controller";
+const char* const RX_ADDRESS = "control";
+const char* const SUB_ADDRESS = "global";
 
 #if OS_IS_LINUX == 1 || OS_IS_MACOSX == 1 || OS_IS_CYGWIN == 1
 #	include <unistd.h>			//	usleep
@@ -48,6 +48,60 @@ socklen_t WOS_SIZE_NRA = sizeof(sockaddr_in);
 #elif OS_IS_WIN32 == 1
 int WOS_SIZE_NRA = sizeof(sockaddr_in);
 #endif
+
+///////////////////////////////////////////////////////////////////////////////
+// Define out own Class methods
+///////////////////////////////////////////////////////////////////////////////
+/** Will detect a reset message
+ */
+class TheDynamicControlUpdateMethod:
+	public WOscServerMethod
+{
+public:
+	TheDynamicControlUpdateMethod(
+		WOscContainer* parent,
+		WOscServer* receiverContext);
+	virtual void Method(
+		const WOscMessage *message,
+		const WOscTimeTag& when,
+		const TheNetReturnAddress* networkReturnAddress);
+};
+
+
+/** Constructor. Sets the method name and info in the base class.            */
+TheDynamicControlUpdateMethod::TheDynamicControlUpdateMethod(
+	WOscContainer* parent,
+	WOscServer* receiverContext)
+:WOscServerMethod(
+	parent,
+	receiverContext,
+	SUB_ADDRESS,
+	"Dynamic COntrol Update Method")
+{}
+
+/** The hello method. Prints "Hello World!" and the contents of the message
+ * on the console.
+ */
+void TheDynamicControlUpdateMethod::Method(
+	const WOscMessage *message,
+	const WOscTimeTag& when,
+	const TheNetReturnAddress* networkReturnAddress)
+{
+	std::cout << "Dynamic Control Methid"<<std::endl ;
+	int nStr = message->GetNumStrings();
+	int nInt = message->GetNumInts();
+	int nFlt = message->GetNumFloats();
+	for (int i = 0; i < nStr; i++ )
+		std::cout << "  str["<<i<<"]\t" << 
+			message->GetString(i).GetBuffer() <<std::endl ;
+	for (int i = 0; i < nInt; i++ )
+		std::cout << "  int["<<i<<"]\t" << 
+			message->GetInt(i) <<std::endl ;
+	for (int i = 0; i < nFlt; i++ )
+		std::cout << "  flt["<<i<<"]\t" << 
+			message->GetFloat(i) <<std::endl ;
+}
+
 
 ///////////////////////////////////////////////////////////////////////////////
 // WOscServerMethod
@@ -204,13 +258,13 @@ WOscServer::WOscServer()
 	WOscContainer* rootContainer = new WOscContainer();
 	WOscContainer* etcContainer = new WOscContainer(rootContainer, RX_ADDRESS);
 	
-	// "root" methods
-	new TheOscHelloMethod( rootContainer, this );
-	new TheOscExitMethod( rootContainer, this );
-	new TheOscEchoMethod( rootContainer, this );
+	// 
+	
+	//new TheOscExitMethod( rootContainer, this );
+	//new TheOscEchoMethod( rootContainer, this );
 	
 	// "etc" methods
-	new TheOscHelloMethod( etcContainer, this );
+	new TheDynamicControlUpdateMethod( etcContainer, this );
 
 	SetAddressSpace(rootContainer);
 
