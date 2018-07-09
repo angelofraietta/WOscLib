@@ -35,6 +35,10 @@ EXAMPOBJ = \
 	$(EXAMPPATH)/WOscStreamingClient.o \
 	$(EXAMPPATH)/WOscStreamingServer.o
 
+DIAGPATH=./diagnostics
+DIAGOBJ = \
+    $(DIAGPATH)/WOscServer.o    \
+
 TESTPATH=./tests
 TESTOBJ = \
     $(TESTPATH)/patternmatch.o    \
@@ -47,16 +51,19 @@ EXP_TCPCLIENT = $(EXAMPPATH)/woscstreamingclient@OS_SPECIFIC_EXAMPLESUFFIX@
 EXP_TCPSERVER = $(EXAMPPATH)/woscstreamingserver@OS_SPECIFIC_EXAMPLESUFFIX@
 EXAMPLES=$(EXP_SERVER) $(EXP_CLIENT) $(EXP_TCPCLIENT) $(EXP_TCPSERVER)
 
+DIAG_SERVER = $(DIAGPATH)/hbmessagetest
+DIAGS=$(DIAG_SERVER)
+
 TEST_PATTERNMATCH=$(TESTPATH)/patternmatch@OS_SPECIFIC_EXAMPLESUFFIX@
 TESTS=$(TEST_PATTERNMATCH)
 
-all: $(OBJS) $(TARGET) $(EXAMPOBJ) $(EXAMPLES) $(TESTOBJ) $(TESTS)
+all: $(OBJS) $(TARGET) $(EXAMPOBJ) $(EXAMPLES) $(TESTOBJ) $(TESTS) $(DIAGOBJ) $(DIAGS)
 
 new: clean all
 
 clean:
-	$(RM) -f $(OBJS) $(TARGET) $(EXAMPOBJ) $(EXAMPLES) $(TESTOBJ) $(TESTS)
-	$(RM) -r doc/html doc/latex $(OBJS:.o=.d) $(EXAMPOBJ:.o=.d) $(TESTOBJ:.o=.d)
+	$(RM) -f $(OBJS) $(TARGET) $(EXAMPOBJ) $(EXAMPLES) $(TESTOBJ) $(TESTS) $(DIAGOBJ) $(DIAGS)
+	$(RM) -r doc/html doc/latex $(OBJS:.o=.d) $(EXAMPOBJ:.o=.d) $(TESTOBJ:.o=.d) $(DIAGOBJ:.o=.d) 
 
 $(EXP_SERVER):$(TARGET) $(EXAMPPATH)/WOscServer.o
 	$(CXX) -o $@ $(EXAMPPATH)/WOscServer.o -L./ @OS_SPECIFIC_EXAMPLELINKS@
@@ -72,6 +79,9 @@ $(EXP_TCPSERVER):$(TARGET) $(EXAMPPATH)/WOscStreamingServer.o
 
 $(TEST_PATTERNMATCH):$(TARGET) $(TESTPATH)/patternmatch.o
 	$(CXX) -o $@ $(TESTPATH)/patternmatch.o -L./ @OS_SPECIFIC_EXAMPLELINKS@
+	
+$(DIAG_SERVER):$(TARGET) $(DIAGPATH)/WOscServer.o
+	$(CXX) -o $@ $(DIAGPATH)/WOscServer.o -L./ -lwosclib -lpthread -framework CoreServices
 	
 libwosclib.a: ${OBJS}
 	$(AR) -r $@ $^
@@ -91,6 +101,9 @@ $(OBJS): %.o: %.cpp
 $(EXAMPOBJ): %.o: %.cpp
 	$(CXX) -c -MMD -MP -MF"$(@:%.o=%.d)" -MT"$(@:%.o=%.d)" $(CFLAGS) -o$@ -I. -I$(EXAMPPATH) $<
 
+$(DIAGOBJ): %.o: %.cpp
+	$(CXX) -c -MMD -MP -MF"$(@:%.o=%.d)" -MT"$(@:%.o=%.d)" $(CFLAGS) -o$@ -I. -I$(DIAGPATH) $<
+	
 $(TESTOBJ): %.o: %.cpp
 	$(CXX) -c -MMD -MP -MF"$(@:%.o=%.d)" -MT"$(@:%.o=%.d)" $(CFLAGS) -o$@ -I. -I$(TESTPATH) $<
 
@@ -127,3 +140,4 @@ doc:
 -include $(OBJS:.o=.d)
 -include $(EXAMPOBJ:.o=.d)
 -include $(TESTOBJ:.o=.d)
+-include $(DIAGOBJ:.o=.d)
