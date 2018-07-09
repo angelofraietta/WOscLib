@@ -4,8 +4,14 @@
 // OS dependent includes
 ///////////////////////////////////////////////////////////////////////////////
    
+// define our OSC Addresses
 const char* const RX_ADDRESS = "control";
 const char* const SUB_ADDRESS = "global";
+
+// define our Dynamic Control names
+const char* const RESET_MESSASGE = "Reset";
+const char* const DISPLAY_MESSASGE = "Display";
+const char* const GLOBAL_INT_MESSAGE = "Global Integer";
 
 #if OS_IS_LINUX == 1 || OS_IS_MACOSX == 1 || OS_IS_CYGWIN == 1
 #	include <unistd.h>			//	usleep
@@ -42,7 +48,7 @@ using std::endl;
 // defines
 ///////////////////////////////////////////////////////////////////////////////
    
-#define OSC_SERVER_PORT			10000
+#define OSC_SERVER_PORT			2226
 #define PROTOCOL_UDP			17
 #define WOS_MAX_RX_UDP_PACKET	2048
 
@@ -94,26 +100,31 @@ void TheDynamicControlUpdateMethod::Method(
 	const WOscTimeTag& when,
 	const TheNetReturnAddress* networkReturnAddress)
 {
-    
+        static int last_message = 0;
         static int num_int_messages = 0;
         static int next_expected_int = 0;
         static int num_errors = 0;
-        
-	std::cout << "Dynamic Control Method"<<std::endl ;
+    
 	int nStr = message->GetNumStrings();
 	int nInt = message->GetNumInts();
 	//int nFlt = message->GetNumFloats();
   
         if (nStr > 0){
             const char* message_name = message->GetString(1).GetBuffer();
-            if (strcmp(message_name, "Reset") == 0){
+            if (strcmp(message_name, RESET_MESSASGE) == 0){
                 cout << "Reset Message" <<endl;
                 num_int_messages = 0;
                 next_expected_int = 0;
-                num_errors = 0;        
+                num_errors = 0;    
+                last_message = 0;
             }
-            else if(strcmp(message_name, "Global Integer") == 0){
-                cout << "Integer Message" << endl;
+            else if (strcmp(message_name, DISPLAY_MESSASGE) == 0){
+                cout << "Display Message" <<endl;
+                cout<<"Last Int:"<<last_message << " Num Msg:" << num_int_messages<< " Num Err:" << num_errors <<endl;    
+            }
+            
+            
+            else if(strcmp(message_name, GLOBAL_INT_MESSAGE) == 0){
 
                 if (nInt > 0){
                     int message_val = message->GetInt(1); // 1 is where our message val is
@@ -122,16 +133,22 @@ void TheDynamicControlUpdateMethod::Method(
                     if (message_val < next_expected_int){
                         num_errors++;
                     }
-
+                    else if (message_val != next_expected_int){
+                        cout<<"Last Int:"<<message_val << " Expected:" << next_expected_int<<endl;
+                    }
+                    last_message = message_val;
                     next_expected_int = message_val + 1;
 
-                    cout<<message_val << " " << num_int_messages<< " " << num_errors <<endl;
+                    
 
                 }
                 else{
                     cout<< "Not enough Int messages for this to be valid" << endl;
                 }
 
+            }
+            else{
+                cout << "Unknown message "<< message_name<<endl;
             }
         }
         else{
@@ -472,7 +489,7 @@ WOscServer::WOscServerErrors WOscServer::NetworkInit(int port)
 	
 	// disable blocking, polling is used in this example.
 #if OS_IS_LINUX == 1 || OS_IS_MACOSX == 1 || OS_IS_CYGWIN == 1
-	err = fcntl(m_hSocket, F_SETFL, O_NONBLOCK);
+	//err = fcntl(m_hSocket, F_SETFL, O_NONBLOCK);
 #elif OS_IS_WIN32 == 1
 	// disable blocking (for this example)
 	unsigned long val = 1;
@@ -591,12 +608,14 @@ int main(int argc, char *argv[])
 
 	// run osc server as long the "exit" flag isn't set.
 	while ( ! server.Exit() ) {
-		server.CheckForPackets();
+           
+            server.CheckForPackets();
 
 		// poll for new packets every millisecond
-		// (this demo is non-blocking)
+		// we will block on Mac and Linux version
+                
 #if OS_IS_LINUX == 1 || OS_IS_MACOSX == 1 || OS_IS_CYGWIN == 1
-		usleep(1000);
+		//usleep(1);
 #elif OS_IS_WIN32 == 1
 		Sleep(1);
 #endif
