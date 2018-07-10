@@ -4,6 +4,8 @@
 // OS dependent includes
 ///////////////////////////////////////////////////////////////////////////////
    
+#define BUILD_NUMBER 1
+
 // define our OSC Addresses
 const char* const RX_ADDRESS = "control";
 const char* const SUB_ADDRESS = "global";
@@ -583,6 +585,7 @@ WOscServer::WOscServerErrors WOscServer::CheckForPackets()
  */
 int main(int argc, char *argv[])
 {
+    cout<<"HB Message test V:"<<BUILD_NUMBER<<endl;
 	int port = OSC_SERVER_PORT;
 	if ( argc > 1 ) {
 		port = atoi( argv[1] );
