@@ -102,7 +102,7 @@ void TheDynamicControlUpdateMethod::Method(
 {
         static int last_message = 0;
         static int num_int_messages = 0;
-        static int next_expected_int = 0;
+        static int next_expected_int = 1;
         static int num_errors = 0;
     
 	int nStr = message->GetNumStrings();
@@ -114,7 +114,7 @@ void TheDynamicControlUpdateMethod::Method(
             if (strcmp(message_name, RESET_MESSASGE) == 0){
                 cout << "Reset Message" <<endl;
                 num_int_messages = 0;
-                next_expected_int = 0;
+                next_expected_int = 1;
                 num_errors = 0;    
                 last_message = 0;
             }
