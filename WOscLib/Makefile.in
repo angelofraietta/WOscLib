@@ -81,7 +81,7 @@ $(TEST_PATTERNMATCH):$(TARGET) $(TESTPATH)/patternmatch.o
 	$(CXX) -o $@ $(TESTPATH)/patternmatch.o -L./ @OS_SPECIFIC_EXAMPLELINKS@
 	
 $(DIAG_SERVER):$(TARGET) $(DIAGPATH)/WOscServer.o
-	$(CXX) -o $@ $(DIAGPATH)/WOscServer.o -L./ -lwosclib -lpthread -framework CoreServices
+	$(CXX) -o $@ $(DIAGPATH)/WOscServer.o -L./ @OS_SPECIFIC_EXAMPLELINKS@
 	
 libwosclib.a: ${OBJS}
 	$(AR) -r $@ $^
